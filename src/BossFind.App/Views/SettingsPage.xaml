@@ -1,0 +1,22 @@
+<Page
+    x:Class="BossFind.App.Views.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel Margin="32" MaxWidth="760" Spacing="16">
+        <TextBlock Text="设置" Style="{StaticResource TitleTextBlockStyle}" />
+        <TextBlock Text="管理本地数据文件。不会导出平台登录态或访问网络。" TextWrapping="Wrap" />
+        <TextBox Header="候选人数据导出路径" Text="{Binding ExportPath, Mode=TwoWay}" />
+        <StackPanel Orientation="Horizontal" Spacing="12">
+            <Button Content="导出 JSON" Click="OnExportClick" />
+            <ProgressRing Width="24" Height="24" IsActive="{Binding IsBusy}" />
+        </StackPanel>
+        <TextBlock Text="{Binding Status}" TextWrapping="Wrap" Opacity="0.72" />
+        <Border BorderThickness="0,1,0,0" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" Padding="0,16,0,0">
+            <StackPanel Spacing="10">
+                <TextBlock Text="网页容器" Style="{StaticResource SubtitleTextBlockStyle}" />
+                <TextBlock Text="清理独立 Profile 会移除本地 WebView2 登录态和缓存。" TextWrapping="Wrap" />
+                <Button Content="清理 WebView2 Profile" Click="OnClearWebViewProfileClick" />
+            </StackPanel>
+        </Border>
+    </StackPanel>
+</Page>

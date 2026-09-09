@@ -1,0 +1,20 @@
+<Project>
+  <Target
+    Name="StageMsixTaskDependencies"
+    BeforeTargets="PrepareForBuild"
+    Condition="'$(MSBuildRuntimeType)' == 'Core' and Exists('$(PkgMicrosoft_Windows_SDK_BuildTools_MSIX)\tools\net6.0\Microsoft.Windows.SDK.BuildTools.MSIX.dll')">
+    <!-- The SDK's net6 MSIX task package omits these runtime dependencies. -->
+    <ItemGroup>
+      <MsixTaskAssembly Include="$(PkgMicrosoft_Windows_SDK_BuildTools_MSIX)\tools\net6.0\*.dll" />
+      <MsixTaskAssembly Include="$(PkgSystem_Security_Permissions)\lib\net6.0\System.Security.Permissions.dll" />
+      <MsixTaskAssembly Include="$(PkgSystem_Windows_Extensions)\lib\net6.0\System.Windows.Extensions.dll" />
+    </ItemGroup>
+
+    <MakeDir Directories="$(BossFindMsixTaskAssemblyDirectory)" />
+    <Copy SourceFiles="@(MsixTaskAssembly)" DestinationFolder="$(BossFindMsixTaskAssemblyDirectory)" SkipUnchangedFiles="true" />
+  </Target>
+
+  <PropertyGroup Condition="'$(IsTestProject)' == 'true'">
+    <NoWarn>$(NoWarn);CA1707</NoWarn>
+  </PropertyGroup>
+</Project>

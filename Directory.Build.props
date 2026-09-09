@@ -1,0 +1,24 @@
+<Project>
+  <PropertyGroup>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <Deterministic>true</Deterministic>
+    <PlaywrightPlatform>win-x64</PlaywrightPlatform>
+    <BossFindMsixTaskAssemblyDirectory Condition="'$(MSBuildRuntimeType)' == 'Core'">$(MSBuildThisFileDirectory)artifacts\msix-task\</BossFindMsixTaskAssemblyDirectory>
+    <MsixTaskAssemblyLocation Condition="'$(BossFindMsixTaskAssemblyDirectory)' != '' and '$(MsixTaskAssemblyLocation)' == ''">$(BossFindMsixTaskAssemblyDirectory)</MsixTaskAssemblyLocation>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Security.Permissions" PrivateAssets="all" ExcludeAssets="all" GeneratePathProperty="true" />
+    <PackageReference Include="System.Windows.Extensions" PrivateAssets="all" ExcludeAssets="all" GeneratePathProperty="true" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(IsTestProject)' == 'true'">
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+</Project>

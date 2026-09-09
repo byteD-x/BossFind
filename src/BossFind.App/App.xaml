@@ -1,0 +1,12 @@
+<Application
+    x:Class="BossFind.App.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+            <XamlControlsResources x:Key="XamlControlsResources" xmlns="using:Microsoft.UI.Xaml.Controls" />
+            <SolidColorBrush x:Key="AppAccentBrush" Color="#0078D4" />
+            <SolidColorBrush x:Key="AppSurfaceBrush" Color="#F7F8FA" />
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

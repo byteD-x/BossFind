@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  IgnorableNamespaces="uap">
+  <Identity Name="BossFind.App" Publisher="CN=BossFind" Version="1.0.0.0" />
+  <Properties>
+    <DisplayName>BossFind</DisplayName>
+    <PublisherDisplayName>BossFind</PublisherDisplayName>
+    <Logo>Assets\StoreLogo.png</Logo>
+  </Properties>
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.19041.0" MaxVersionTested="10.0.26100.0" />
+  </Dependencies>
+  <Resources>
+    <Resource Language="x-generate" />
+  </Resources>
+  <Applications>
+    <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="BossFind.App.App">
+      <uap:VisualElements
+        AppListEntry="default"
+        DisplayName="BossFind"
+        Description="BossFind 求职管理"
+        Square44x44Logo="Assets\Square44x44Logo.png"
+        Square150x150Logo="Assets\Square150x150Logo.png"
+        BackgroundColor="#0078D4">
+        <uap:DefaultTile />
+      </uap:VisualElements>
+    </Application>
+  </Applications>
+</Package>

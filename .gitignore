@@ -1,0 +1,31 @@
+.dotnet/
+bin/
+obj/
+TestResults/
+artifacts/
+.vs/
+*.user
+*.suo
+*.db
+*.db-shm
+*.db-wal
+*.log
+.playwright/
+
+# Build and packaging outputs
+**/bin/
+**/obj/
+**/AppPackages/
+*.msix
+*.appx
+*.appxsym
+*.appxupload
+
+# Generated MSBuild and runtime diagnostics
+*.pp.xml
+*.trace.txt
+*.trx
+corehost.trace.txt
+
+# Local agent/session notes
+.codex/

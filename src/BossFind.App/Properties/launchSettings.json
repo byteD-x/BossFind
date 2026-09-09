@@ -1,0 +1,7 @@
+{
+  "profiles": {
+    "BossFind.App (MSIX)": {
+      "commandName": "MsixPackage"
+    }
+  }
+}
