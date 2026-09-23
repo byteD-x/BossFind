@@ -2,6 +2,7 @@ using BossFind.App.ViewModels;
 using BossFind.Application.Common;
 using BossFind.Application.Profiles;
 using BossFind.Domain.Entities;
+using BossFind.Domain.Enums;
 
 namespace BossFind.Ui.Tests;
 
@@ -85,13 +86,81 @@ public sealed class BossBrowserViewModelTests
         Assert.Single(repository.Profiles);
     }
 
+    [Fact]
+    public async Task MatchAsync_sorts_profiles_and_reports_skill_details()
+    {
+        var (viewModel, repository) = CreateViewModel();
+        repository.Profiles.AddRange(
+        [
+            new CandidateProfile
+            {
+                Name = "部分匹配",
+                Headline = "后端工程师",
+                Location = "上海",
+                Facts = [new CandidateFact { Content = "熟悉 C#" }]
+            },
+            new CandidateProfile
+            {
+                Name = "完全匹配",
+                Headline = "后端工程师",
+                Location = "上海",
+                Facts = [new CandidateFact { Category = CandidateFactCategory.Skill, Content = "C#、.NET" }]
+            }
+        ]);
+        viewModel.SetJobSummary("后端工程师", "示例科技", "上海", ["C#", ".NET"]);
+
+        await viewModel.MatchAsync();
+
+        Assert.Equal(["完全匹配", "部分匹配"], viewModel.Matches.Select(match => match.Profile.Name));
+        Assert.Equal("100%", viewModel.Matches[0].ScoreText);
+        Assert.Equal("C#、.NET", viewModel.Matches[0].MatchedSkillsText);
+        Assert.Equal("无", viewModel.Matches[0].MissingSkillsText);
+        Assert.Equal("命中技能：C#、.NET", viewModel.Matches[0].MatchedSkillsLabel);
+        Assert.Equal("缺失技能：无", viewModel.Matches[0].MissingSkillsLabel);
+        Assert.Equal("已匹配 2 个候选人档案。", viewModel.MatchStatus);
+        Assert.False(viewModel.IsBusy);
+    }
+
+    [Fact]
+    public async Task MatchAsync_reports_when_no_profiles_exist()
+    {
+        var (viewModel, _) = CreateViewModel();
+        viewModel.SetJobSummary("后端工程师", "示例科技", "上海", []);
+
+        await viewModel.MatchAsync();
+
+        Assert.Empty(viewModel.Matches);
+        Assert.Equal("暂无候选人档案，请先在档案页创建。", viewModel.MatchStatus);
+        Assert.False(viewModel.IsBusy);
+    }
+
+    [Fact]
+    public async Task MatchAsync_reports_cancellation_and_resets_busy_state()
+    {
+        var (viewModel, repository) = CreateViewModel();
+        repository.Profiles.Add(new CandidateProfile { Name = "候选人", Headline = "后端工程师" });
+        viewModel.SetJobSummary("后端工程师", "示例科技", "上海", []);
+        using var cancellation = new CancellationTokenSource();
+        cancellation.Cancel();
+
+        await viewModel.MatchAsync(cancellation.Token);
+
+        Assert.Equal("匹配已取消。", viewModel.MatchStatus);
+        Assert.Empty(viewModel.Matches);
+        Assert.False(viewModel.IsBusy);
+    }
+
     private static (BossBrowserViewModel ViewModel, InMemoryRepository Repository) CreateViewModel()
     {
         var repository = new InMemoryRepository();
         var profileService = new CandidateProfileService(
             new FixedClock(new DateTime(2026, 9, 8, 1, 0, 0, DateTimeKind.Utc)),
             repository);
-        return (new BossBrowserViewModel(new JobCandidateImportService(profileService)), repository);
+        return (
+            new BossBrowserViewModel(
+                new JobCandidateImportService(profileService),
+                profileService),
+            repository);
     }
 
     private sealed class InMemoryRepository : ICandidateProfileRepository

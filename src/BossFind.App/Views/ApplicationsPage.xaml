@@ -1,0 +1,75 @@
+<Page
+    x:Class="BossFind.App.Views.ApplicationsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Loaded="OnLoaded">
+    <ScrollViewer>
+        <StackPanel Margin="28" Spacing="22">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Spacing="4">
+                    <TextBlock Text="投递与复核" Style="{StaticResource TitleTextBlockStyle}" />
+                    <TextBlock Text="记录由你手动确认的投递，逐条跟进复核任务。" Foreground="{ThemeResource AppMutedTextBrush}" />
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                    <ProgressRing Width="20" Height="20" IsActive="{Binding IsBusy}" />
+                    <TextBlock Text="{Binding StatusMessage}" Foreground="{ThemeResource AppMutedTextBrush}" VerticalAlignment="Center" />
+                </StackPanel>
+            </Grid>
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="28">
+                <StackPanel Spacing="10">
+                    <TextBlock Text="投递记录" Style="{StaticResource SubtitleTextBlockStyle}" />
+                    <ListView x:Name="ApplicationsList" ItemsSource="{Binding Applications}" SelectedItem="{Binding SelectedApplication, Mode=TwoWay}" MaxHeight="300">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnDefinitions="*,Auto" Padding="8,10" BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="0,0,0,1">
+                                    <StackPanel Spacing="3">
+                                        <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Text="{Binding Company}" Foreground="{ThemeResource AppMutedTextBrush}" />
+                                        <TextBlock Text="{Binding CandidateName}" Foreground="{ThemeResource AppMutedTextBrush}" FontSize="12" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Spacing="3" HorizontalAlignment="Right">
+                                        <TextBlock Text="{Binding StatusLabel}" Foreground="{ThemeResource AppAccentBrush}" HorizontalAlignment="Right" />
+                                        <TextBlock Text="{Binding UpdatedAtLabel}" Foreground="{ThemeResource AppMutedTextBrush}" FontSize="11" />
+                                    </StackPanel>
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                    <TextBlock Text="{Binding EmptyApplicationsMessage}" TextWrapping="Wrap" Foreground="{ThemeResource AppMutedTextBrush}" />
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Button Content="打开岗位" Click="OnOpenApplicationClick" IsEnabled="{Binding HasSelectedApplication}" />
+                        <Button Content="标记为已投递" Click="OnMarkSubmittedClick" IsEnabled="{Binding CanMarkSubmitted}" />
+                        <Button Content="撤销记录" Click="OnWithdrawClick" IsEnabled="{Binding CanWithdraw}" />
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Spacing="10">
+                    <TextBlock Text="人工复核队列" Style="{StaticResource SubtitleTextBlockStyle}" />
+                    <ListView x:Name="TasksList" ItemsSource="{Binding ReviewTasks}" SelectedItem="{Binding SelectedTask, Mode=TwoWay}" MaxHeight="300">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnDefinitions="*,Auto" Padding="8,10" BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="0,0,0,1">
+                                    <StackPanel Spacing="3">
+                                        <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Text="{Binding Company}" Foreground="{ThemeResource AppMutedTextBrush}" />
+                                        <TextBlock Text="{Binding CreatedAtLabel}" Foreground="{ThemeResource AppMutedTextBrush}" FontSize="11" />
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="1" Text="{Binding StatusLabel}" Foreground="{ThemeResource AppAccentBrush}" VerticalAlignment="Center" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                    <TextBlock Text="{Binding EmptyTasksMessage}" TextWrapping="Wrap" Foreground="{ThemeResource AppMutedTextBrush}" />
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Button Content="开始复核" Click="OnBeginReviewClick" IsEnabled="{Binding CanStartReview}" />
+                        <Button Content="完成" Click="OnCompleteReviewClick" IsEnabled="{Binding CanCompleteReview}" />
+                        <Button Content="取消任务" Click="OnCancelTaskClick" IsEnabled="{Binding CanCancelTask}" />
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+
+            <TextBlock Text="复核队列只记录处理进度，不会自动填写或提交申请。" Foreground="{ThemeResource AppMutedTextBrush}" TextWrapping="Wrap" />
+        </StackPanel>
+    </ScrollViewer>
+</Page>

@@ -138,6 +138,34 @@ public sealed class DatabaseTests
     }
 
     [Fact]
+    public async Task Profile_list_loads_candidate_facts_for_matching()
+    {
+        var databasePath = Path.Combine(Path.GetTempPath(), $"bossfind-{Guid.NewGuid():N}.db");
+        try
+        {
+            var options = CreateOptions(databasePath);
+            await using (var seed = new AppDbContext(options))
+            {
+                await seed.Database.MigrateAsync();
+                var profile = new CandidateProfile { Name = "技能候选人", Headline = "后端工程师" };
+                profile.Facts.Add(new CandidateFact { Content = "熟悉 C# 和 .NET" });
+                seed.CandidateProfiles.Add(profile);
+                await seed.SaveChangesAsync();
+            }
+
+            var repository = CreateRepository(options);
+            var loaded = Assert.Single(await repository.ListProfilesAsync(null));
+
+            var fact = Assert.Single(loaded.Facts);
+            Assert.Equal("熟悉 C# 和 .NET", fact.Content);
+        }
+        finally
+        {
+            DeleteDatabaseFiles(databasePath);
+        }
+    }
+
+    [Fact]
     public async Task Stale_profile_update_throws_concurrency_exception()
     {
         var databasePath = Path.Combine(Path.GetTempPath(), $"bossfind-{Guid.NewGuid():N}.db");

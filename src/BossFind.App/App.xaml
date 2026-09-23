@@ -4,9 +4,86 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Application.Resources>
         <ResourceDictionary>
-            <XamlControlsResources x:Key="XamlControlsResources" xmlns="using:Microsoft.UI.Xaml.Controls" />
-            <SolidColorBrush x:Key="AppAccentBrush" Color="#0078D4" />
-            <SolidColorBrush x:Key="AppSurfaceBrush" Color="#F7F8FA" />
+            <ResourceDictionary.MergedDictionaries>
+                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+            </ResourceDictionary.MergedDictionaries>
+            <!-- 主题画刷：跟随系统深浅色模式，页面统一使用 ThemeResource 引用 -->
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Default">
+                    <SolidColorBrush x:Key="AppAccentBrush" Color="#176B5C" />
+                    <SolidColorBrush x:Key="AppBackgroundBrush" Color="#D9F4F6F4" />
+                    <SolidColorBrush x:Key="AppSurfaceBrush" Color="#F2FFFFFF" />
+                    <SolidColorBrush x:Key="AppSurfaceRaisedBrush" Color="#F1F4F2" />
+                    <SolidColorBrush x:Key="AppSurfaceInsetBrush" Color="#F7F8F7" />
+                    <SolidColorBrush x:Key="AppBorderBrush" Color="#DCE3DF" />
+                    <SolidColorBrush x:Key="AppBorderStrongBrush" Color="#BCC8C1" />
+                    <SolidColorBrush x:Key="AppMutedTextBrush" Color="#53615A" />
+                    <SolidColorBrush x:Key="AppGoodBrush" Color="#287348" />
+                    <SolidColorBrush x:Key="AppWarningBrush" Color="#94600C" />
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Light">
+                    <SolidColorBrush x:Key="AppAccentBrush" Color="#176B5C" />
+                    <SolidColorBrush x:Key="AppBackgroundBrush" Color="#D9F4F6F4" />
+                    <SolidColorBrush x:Key="AppSurfaceBrush" Color="#F2FFFFFF" />
+                    <SolidColorBrush x:Key="AppSurfaceRaisedBrush" Color="#F1F4F2" />
+                    <SolidColorBrush x:Key="AppSurfaceInsetBrush" Color="#F7F8F7" />
+                    <SolidColorBrush x:Key="AppBorderBrush" Color="#DCE3DF" />
+                    <SolidColorBrush x:Key="AppBorderStrongBrush" Color="#BCC8C1" />
+                    <SolidColorBrush x:Key="AppMutedTextBrush" Color="#53615A" />
+                    <SolidColorBrush x:Key="AppGoodBrush" Color="#287348" />
+                    <SolidColorBrush x:Key="AppWarningBrush" Color="#94600C" />
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Dark">
+                    <SolidColorBrush x:Key="AppAccentBrush" Color="#4DB6A0" />
+                    <SolidColorBrush x:Key="AppBackgroundBrush" Color="#CC1B1E1C" />
+                    <SolidColorBrush x:Key="AppSurfaceBrush" Color="#F2242825" />
+                    <SolidColorBrush x:Key="AppSurfaceRaisedBrush" Color="#333834" />
+                    <SolidColorBrush x:Key="AppSurfaceInsetBrush" Color="#232725" />
+                    <SolidColorBrush x:Key="AppBorderBrush" Color="#3A403C" />
+                    <SolidColorBrush x:Key="AppBorderStrongBrush" Color="#4A524D" />
+                    <SolidColorBrush x:Key="AppMutedTextBrush" Color="#A3B0A8" />
+                    <SolidColorBrush x:Key="AppGoodBrush" Color="#6CC78F" />
+                    <SolidColorBrush x:Key="AppWarningBrush" Color="#E0B45C" />
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+            <Style x:Key="TitleTextBlockStyle" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="26" />
+                <Setter Property="FontWeight" Value="SemiBold" />
+            </Style>
+            <Style x:Key="SubtitleTextBlockStyle" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="18" />
+                <Setter Property="FontWeight" Value="SemiBold" />
+            </Style>
+            <Style x:Key="BodyTextBlockStyle" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="14" />
+            </Style>
+            <!-- 工具栏小图标按钮：统一尺寸，用于浏览器导航条 -->
+            <Style x:Key="ToolButtonStyle" TargetType="Button">
+                <Setter Property="Padding" Value="0" />
+                <Setter Property="Width" Value="36" />
+                <Setter Property="Height" Value="36" />
+                <Setter Property="HorizontalContentAlignment" Value="Center" />
+                <Setter Property="VerticalContentAlignment" Value="Center" />
+            </Style>
+            <!-- 嵌入 Mica 背景后，导航壳保持透明，让窗口背景材料透出 -->
+            <Style TargetType="NavigationView">
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="BorderBrush" Value="{ThemeResource AppBorderBrush}" />
+                <Setter Property="IsPaneToggleButtonVisible" Value="True" />
+                <Setter Property="CompactPaneLength" Value="48" />
+                <Setter Property="OpenPaneLength" Value="232" />
+            </Style>
+            <Style TargetType="Button">
+                <Setter Property="CornerRadius" Value="4" />
+                <Setter Property="Padding" Value="12,7" />
+                <Setter Property="MinHeight" Value="36" />
+            </Style>
+            <Style TargetType="TextBox">
+                <Setter Property="CornerRadius" Value="4" />
+            </Style>
+            <Style TargetType="ComboBox">
+                <Setter Property="CornerRadius" Value="4" />
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

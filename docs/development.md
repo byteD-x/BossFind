@@ -46,4 +46,6 @@ CI 使用 Windows runner 执行相同的还原、构建和测试步骤，并上�
 
 ## 本地运行边界
 
-应用数据默认位于 `%LOCALAPPDATA%\BossFind`。岗位浏览页加载仓库内 fixture；测试和开发阶段不使用真实平台账号、登录态或候选人个人资料。需要 GUI 验证时，在 Windows 桌面手工确认应用启动、页面导航、WebView2 Profile、CDP、PDF 和控件操作，并把结果写入外部验证记录。
+应用数据默认位于 `%LOCALAPPDATA%\BossFind`。岗位浏览页默认打开 BOSS 直聘，也可加载仓库内的示例岗位；测试使用本地 fixture。网页登录态仅保存在独立 WebView2 Profile 中，应用不读取密码、Cookie 或验证码。投递和复核都由用户在平台页面手动完成。
+
+运行 UI 冒烟检查时，在 Windows 桌面确认主窗口启动、页面导航、WebView2 初始化、岗位记录、PDF 导出和档案操作。`Start-BossFind.cmd` 每次都会还原依赖并从当前源码构建 Debug 版本，再启动应用。

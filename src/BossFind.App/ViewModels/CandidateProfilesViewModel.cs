@@ -23,6 +23,8 @@ public sealed partial class CandidateProfilesViewModel(CandidateProfileService p
 
     public string FactActionLabel => IsEditingFact ? "保存事实" : "添加事实";
 
+    public bool CanDeleteProfile => editingProfile is not null;
+
     public string SearchResultMessage => string.IsNullOrWhiteSpace(SearchText)
         ? $"共 {Profiles.Count} 个档案"
         : Profiles.Count == 0
@@ -181,6 +183,7 @@ public sealed partial class CandidateProfilesViewModel(CandidateProfileService p
     {
         SelectedProfile = null;
         editingProfile = null;
+        OnPropertyChanged(nameof(CanDeleteProfile));
         Name = string.Empty;
         Headline = string.Empty;
         Location = string.Empty;
@@ -378,6 +381,7 @@ public sealed partial class CandidateProfilesViewModel(CandidateProfileService p
 
         SelectedProfile = profile;
         editingProfile = loadedProfile;
+        OnPropertyChanged(nameof(CanDeleteProfile));
         CopyProfileToDraft(loadedProfile);
         ReplaceFacts(loadedProfile.Facts);
         ResetFactDraft();

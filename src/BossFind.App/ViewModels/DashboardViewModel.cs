@@ -1,19 +1,39 @@
 using System.Collections.ObjectModel;
 using System.Globalization;
+using BossFind.Application.Jobs;
 using BossFind.Application.Profiles;
+using BossFind.Domain.Entities;
 using BossFind.Platform.Boss.WebView;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace BossFind.App.ViewModels;
 
-public sealed partial class DashboardViewModel(CandidateProfileService profileService)
-    : ObservableObject
+public sealed partial class DashboardViewModel(
+    CandidateProfileService profileService,
+    IJobRepository jobRepository) : ObservableObject
 {
     [ObservableProperty]
     public partial bool IsBusy { get; set; }
 
     [ObservableProperty]
-    public partial string StatusMessage { get; set; } = "等待刷新工作台数据。";
+    public partial string StatusMessage { get; set; } = "";
+
+    [ObservableProperty]
+    public partial string ProfileCount { get; set; } = "0";
+
+    [ObservableProperty]
+    public partial string ConfirmedFactCount { get; set; } = "0";
+
+    [ObservableProperty]
+    public partial string SavedJobCount { get; set; } = "0";
+
+    [ObservableProperty]
+    public partial string PendingActionCount { get; set; } = "0";
+
+    [ObservableProperty]
+    public partial string EmptyJobsMessage { get; set; } = "";
+
+    public ObservableCollection<JobPosting> RecentPostings { get; } = [];
 
     public ObservableCollection<ReadinessItem> ReadinessItems { get; } = [];
 
@@ -28,29 +48,19 @@ public sealed partial class DashboardViewModel(CandidateProfileService profileSe
         try
         {
             var profiles = await profileService.ListAsync(cancellationToken: cancellationToken);
-            var confirmedFactCount = 0;
-            DateTime? latestUpdate = profiles.Count == 0
-                ? null
-                : profiles.Max(profile => profile.UpdatedAtUtc);
+            var postings = await jobRepository.ListAsync(cancellationToken: cancellationToken);
+            var applications = await jobRepository.ListApplicationsAsync(cancellationToken);
+            var tasks = await jobRepository.ListAutomationTasksAsync(cancellationToken);
+            var pendingActions = applications.Count(application => application.Status is JobApplicationStatus.Draft or JobApplicationStatus.ReadyForReview)
+                + tasks.Count(task => task.Status is JobAutomationTaskStatus.Queued or JobAutomationTaskStatus.InReview);
 
-            foreach (var profile in profiles)
-            {
-                var loadedProfile = await profileService.GetAsync(profile.Id, cancellationToken);
-                if (loadedProfile is null)
-                {
-                    continue;
-                }
-
-                confirmedFactCount += loadedProfile.Facts.Count(fact => fact.IsConfirmed);
-                if (latestUpdate is null || loadedProfile.UpdatedAtUtc > latestUpdate)
-                {
-                    latestUpdate = loadedProfile.UpdatedAtUtc;
-                }
-            }
-
-            var runtime = WebView2RuntimeProbe.GetStatus();
-            ReplaceReadinessItems(profiles.Count, confirmedFactCount, latestUpdate, runtime);
-            StatusMessage = $"已刷新：{profiles.Count} 个候选人档案。";
+            ProfileCount = profiles.Count.ToString(CultureInfo.CurrentCulture);
+            ConfirmedFactCount = profiles.Sum(profile => profile.Facts.Count(fact => fact.IsConfirmed)).ToString(CultureInfo.CurrentCulture);
+            SavedJobCount = postings.Count.ToString(CultureInfo.CurrentCulture);
+            PendingActionCount = pendingActions.ToString(CultureInfo.CurrentCulture);
+            ReplaceRecentPostings(postings.Take(5));
+            ReplaceReadinessItems(WebView2RuntimeProbe.GetStatus());
+            StatusMessage = "工作台数据已更新。";
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
@@ -58,7 +68,7 @@ public sealed partial class DashboardViewModel(CandidateProfileService profileSe
         }
         catch (Exception exception)
         {
-            StatusMessage = exception.Message;
+            StatusMessage = $"工作台加载失败：{exception.Message}";
         }
         finally
         {
@@ -66,26 +76,23 @@ public sealed partial class DashboardViewModel(CandidateProfileService profileSe
         }
     }
 
-    private void ReplaceReadinessItems(
-        int profileCount,
-        int confirmedFactCount,
-        DateTime? latestUpdate,
-        WebView2RuntimeStatus runtime)
+    private void ReplaceRecentPostings(IEnumerable<JobPosting> postings)
+    {
+        RecentPostings.Clear();
+        foreach (var posting in postings)
+        {
+            RecentPostings.Add(posting);
+        }
+
+        EmptyJobsMessage = RecentPostings.Count == 0 ? "还没有岗位记录。打开浏览器并查看一个岗位后，这里会显示最近记录。" : "";
+    }
+
+    private void ReplaceReadinessItems(WebView2RuntimeStatus runtime)
     {
         ReadinessItems.Clear();
-        ReadinessItems.Add(new ReadinessItem("候选人档案", $"{profileCount} 个"));
-        ReadinessItems.Add(new ReadinessItem("已确认事实", $"{confirmedFactCount} 条"));
-        ReadinessItems.Add(new ReadinessItem(
-            "最近更新",
-            latestUpdate is null
-                ? "暂无数据"
-                : latestUpdate.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture)));
         ReadinessItems.Add(new ReadinessItem(
             "WebView2 运行时",
-            runtime.IsAvailable
-                ? $"可用（{runtime.Version}）"
-                : $"不可用：{runtime.Error}"));
-        ReadinessItems.Add(new ReadinessItem("平台访问", "仅加载本地固定测试页，不执行平台操作"));
+            runtime.IsAvailable ? $"可用（{runtime.Version}）" : $"不可用：{runtime.Error}"));
     }
 }
 

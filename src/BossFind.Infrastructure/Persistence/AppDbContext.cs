@@ -9,6 +9,12 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
 
     public DbSet<CandidateFact> CandidateFacts => Set<CandidateFact>();
 
+    public DbSet<JobPosting> JobPostings => Set<JobPosting>();
+
+    public DbSet<JobApplication> JobApplications => Set<JobApplication>();
+
+    public DbSet<JobAutomationTask> JobAutomationTasks => Set<JobAutomationTask>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<CandidateProfile>(entity =>
@@ -33,6 +39,49 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
                 .WithMany(profile => profile.Facts)
                 .HasForeignKey(fact => fact.ProfileId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<JobPosting>(entity =>
+        {
+            entity.HasKey(posting => posting.Id);
+            entity.Property(posting => posting.Platform).HasMaxLength(100).IsRequired();
+            entity.Property(posting => posting.ExternalId).HasMaxLength(300);
+            entity.Property(posting => posting.Url).HasMaxLength(2000);
+            entity.Property(posting => posting.Title).HasMaxLength(500).IsRequired();
+            entity.Property(posting => posting.Company).HasMaxLength(500);
+            entity.Property(posting => posting.City).HasMaxLength(200);
+            entity.Property(posting => posting.Salary).HasMaxLength(200);
+            entity.Property(posting => posting.Experience).HasMaxLength(200);
+            entity.Property(posting => posting.Education).HasMaxLength(200);
+            entity.Property(posting => posting.Benefits).HasMaxLength(4000);
+            entity.Property(posting => posting.Description).HasMaxLength(20000);
+            entity.Property(posting => posting.Skills).HasMaxLength(4000);
+            entity.HasIndex(posting => new { posting.Platform, posting.ExternalId }).IsUnique();
+        });
+
+        modelBuilder.Entity<JobApplication>(entity =>
+        {
+            entity.HasKey(application => application.Id);
+            entity.Property(application => application.Note).HasMaxLength(4000);
+            entity.HasOne(application => application.JobPosting)
+                .WithMany()
+                .HasForeignKey(application => application.JobPostingId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(application => application.CandidateProfile)
+                .WithMany()
+                .HasForeignKey(application => application.CandidateProfileId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        modelBuilder.Entity<JobAutomationTask>(entity =>
+        {
+            entity.HasKey(task => task.Id);
+            entity.Property(task => task.ErrorMessage).HasMaxLength(4000);
+            entity.HasOne(task => task.JobPosting)
+                .WithMany()
+                .HasForeignKey(task => task.JobPostingId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasIndex(task => new { task.Status, task.CreatedAtUtc });
         });
     }
 

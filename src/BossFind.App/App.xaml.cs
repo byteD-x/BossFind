@@ -23,6 +23,8 @@ public partial class App : Microsoft.UI.Xaml.Application
         ((App)Current).host?.Services
         ?? throw new InvalidOperationException("应用服务尚未初始化。");
 
+    public MainWindow? MainWindow => window as MainWindow;
+
     protected override async void OnLaunched(LaunchActivatedEventArgs args)
     {
         try
@@ -42,12 +44,16 @@ public partial class App : Microsoft.UI.Xaml.Application
         catch (Exception exception)
         {
             Log.Fatal(exception, "应用启动失败");
+            var logDirectory = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "BossFind",
+                "Logs");
             window = new Window
             {
                 Title = "BossFind 启动失败",
                 Content = new Microsoft.UI.Xaml.Controls.TextBlock
                 {
-                    Text = "无法初始化 BossFind。请导出日志并检查 WebView2 Runtime、应用数据目录和数据库迁移。",
+                    Text = $"无法初始化 BossFind。请检查 WebView2 Runtime、应用数据目录和数据库迁移。日志目录：{logDirectory}",
                     TextWrapping = TextWrapping.Wrap,
                     Margin = new Thickness(32)
                 }

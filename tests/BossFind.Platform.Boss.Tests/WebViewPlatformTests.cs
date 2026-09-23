@@ -68,6 +68,12 @@ public sealed class WebViewPlatformTests
         Assert.Equal("示例科技", summary.Company);
         Assert.Equal("上海", summary.City);
         Assert.Equal([".NET", "WinUI 3", "SQLite"], summary.Tags);
+        Assert.Equal("25-40K · 14薪", summary.Salary);
+        Assert.Equal("3-5年", summary.Experience);
+        Assert.Equal("本科", summary.Education);
+        Assert.Equal(["弹性工作"], summary.BenefitList);
+        Assert.Equal("负责 Windows 客户端和本地数据能力建设。", summary.Description);
+        Assert.Equal("fixture-csharp-senior", summary.ExternalId);
     }
 
     [Fact]
@@ -81,6 +87,32 @@ public sealed class WebViewPlatformTests
         Assert.Empty(summary.Company);
         Assert.Empty(summary.City);
         Assert.Equal(["C#"], summary.Tags);
+    }
+
+    [Fact]
+    public void Job_summary_parser_reads_common_boss_dom_classes()
+    {
+        const string html = """
+            <html><head><link rel="canonical" href="https://www.zhipin.com/job_detail/abc.html"></head>
+            <body><div class="job-primary">
+              <h1 class="name">后端开发工程师</h1>
+              <div class="company-name">真实科技</div>
+              <span class="location-address">杭州</span>
+              <span class="job-name">20-35K</span>
+              <div class="job-sec-text">负责服务端开发与维护</div>
+              <ul class="tag-list"><li class="tag">C#</li><li class="tag">.NET</li></ul>
+            </div></body></html>
+            """;
+
+        var summary = BossJobSummaryParser.Parse(html);
+
+        Assert.Equal("后端开发工程师", summary.Title);
+        Assert.Equal("真实科技", summary.Company);
+        Assert.Equal("杭州", summary.City);
+        Assert.Equal("20-35K", summary.Salary);
+        Assert.Equal("负责服务端开发与维护", summary.Description);
+        Assert.Equal(["C#", ".NET"], summary.Tags);
+        Assert.Equal("https://www.zhipin.com/job_detail/abc.html", summary.Url);
     }
 
     [Theory]

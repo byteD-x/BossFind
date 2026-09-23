@@ -30,6 +30,9 @@ public static class BossFindHost
                 services.AddSingleton<CandidateProfileService>();
                 services.AddSingleton<JobCandidateImportService>();
                 services.AddSingleton<CandidateProfilesViewModel>();
+                services.AddSingleton<JobsViewModel>();
+                services.AddSingleton<ApplicationsViewModel>();
+                services.AddSingleton<InsightsViewModel>();
             })
             .Build();
     }

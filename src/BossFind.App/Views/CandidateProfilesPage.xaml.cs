@@ -81,6 +81,26 @@ public sealed partial class CandidateProfilesPage : Page
 
     private async void OnDeleteProfileClick(object sender, RoutedEventArgs args)
     {
+        if (!viewModel.CanDeleteProfile)
+        {
+            return;
+        }
+
+        var dialog = new ContentDialog
+        {
+            Title = $"删除 {viewModel.Name} 的档案？",
+            Content = "档案中的经历和技能记录也会删除。已有投递记录会保留，但不再关联此档案。",
+            PrimaryButtonText = "删除档案",
+            CloseButtonText = "返回",
+            DefaultButton = ContentDialogButton.Close,
+            XamlRoot = XamlRoot
+        };
+
+        if (await dialog.ShowAsync() != ContentDialogResult.Primary)
+        {
+            return;
+        }
+
         await viewModel.DeleteAsync();
         ProfilesList.SelectedItem = viewModel.SelectedProfile;
     }
@@ -107,7 +127,20 @@ public sealed partial class CandidateProfilesPage : Page
     {
         if (sender is Button { Tag: CandidateFact fact })
         {
-            await viewModel.DeleteFactAsync(fact);
+            var dialog = new ContentDialog
+            {
+                Title = "删除这条事实？",
+                Content = fact.Content,
+                PrimaryButtonText = "删除",
+                CloseButtonText = "返回",
+                DefaultButton = ContentDialogButton.Close,
+                XamlRoot = XamlRoot
+            };
+
+            if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+            {
+                await viewModel.DeleteFactAsync(fact);
+            }
         }
     }
 }
