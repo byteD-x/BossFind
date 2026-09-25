@@ -6,7 +6,15 @@ public enum JobApplicationStatus
     ReadyForReview,
     Submitted,
     Withdrawn,
-    Failed
+    Failed,
+    Contacting,
+    WrittenTest,
+    FirstInterview,
+    SecondInterview,
+    FinalInterview,
+    Offer,
+    Rejected,
+    Abandoned
 }
 
 public sealed class JobApplication

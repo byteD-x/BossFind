@@ -1,8 +1,10 @@
 using BossFind.App.Hosting;
+using BossFind.App.Services;
 using BossFind.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Serilog;
 
@@ -13,8 +15,11 @@ public partial class App : Microsoft.UI.Xaml.Application
     private IHost? host;
     private Window? window;
 
+    public ToastService Toasts { get; }
+
     public App()
     {
+        Toasts = new ToastService(DispatcherQueue.GetForCurrentThread());
         InitializeComponent();
         UnhandledException += OnUnhandledException;
     }
@@ -22,6 +27,8 @@ public partial class App : Microsoft.UI.Xaml.Application
     public static IServiceProvider Services =>
         ((App)Current).host?.Services
         ?? throw new InvalidOperationException("应用服务尚未初始化。");
+
+    public static ToastService GlobalToasts => ((App)Current).Toasts;
 
     public MainWindow? MainWindow => window as MainWindow;
 
@@ -69,6 +76,7 @@ public partial class App : Microsoft.UI.Xaml.Application
 
     private async void OnWindowClosed(object sender, WindowEventArgs args)
     {
+        Toasts.Dispose();
         if (host is not null)
         {
             await host.StopAsync();

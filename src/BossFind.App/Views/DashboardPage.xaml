@@ -2,79 +2,291 @@
     x:Class="BossFind.App.Views.DashboardPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Loaded="OnLoaded">
-    <ScrollViewer Background="{ThemeResource AppBackgroundBrush}">
-        <StackPanel Margin="28" Spacing="24">
-            <Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="8">
-                <StackPanel Spacing="4">
-                    <TextBlock Text="工作台" Style="{StaticResource TitleTextBlockStyle}" />
-                    <TextBlock Text="本地档案与岗位进度" Foreground="{ThemeResource AppMutedTextBrush}" />
+    Loaded="OnLoaded"
+    SizeChanged="OnPageSizeChanged">
+    <Page.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Default">
+                    <SolidColorBrush x:Key="DashboardBackgroundBrush" Color="#F8FAFC" />
+                    <SolidColorBrush x:Key="DashboardSurfaceBrush" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="DashboardInsetBrush" Color="#F1F5F9" />
+                    <SolidColorBrush x:Key="DashboardBorderBrush" Color="#E2E8F0" />
+                    <SolidColorBrush x:Key="DashboardDividerBrush" Color="#F1F5F9" />
+                    <SolidColorBrush x:Key="DashboardPrimaryTextBrush" Color="#0F172A" />
+                    <SolidColorBrush x:Key="DashboardBodyTextBrush" Color="#334155" />
+                    <SolidColorBrush x:Key="DashboardMutedTextBrush" Color="#64748B" />
+                    <SolidColorBrush x:Key="DashboardPlaceholderTextBrush" Color="#94A3B8" />
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Light">
+                    <SolidColorBrush x:Key="DashboardBackgroundBrush" Color="#F8FAFC" />
+                    <SolidColorBrush x:Key="DashboardSurfaceBrush" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="DashboardInsetBrush" Color="#F1F5F9" />
+                    <SolidColorBrush x:Key="DashboardBorderBrush" Color="#E2E8F0" />
+                    <SolidColorBrush x:Key="DashboardDividerBrush" Color="#F1F5F9" />
+                    <SolidColorBrush x:Key="DashboardPrimaryTextBrush" Color="#0F172A" />
+                    <SolidColorBrush x:Key="DashboardBodyTextBrush" Color="#334155" />
+                    <SolidColorBrush x:Key="DashboardMutedTextBrush" Color="#64748B" />
+                    <SolidColorBrush x:Key="DashboardPlaceholderTextBrush" Color="#94A3B8" />
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Dark">
+                    <SolidColorBrush x:Key="DashboardBackgroundBrush" Color="#101827" />
+                    <SolidColorBrush x:Key="DashboardSurfaceBrush" Color="#172235" />
+                    <SolidColorBrush x:Key="DashboardInsetBrush" Color="#1E2B3F" />
+                    <SolidColorBrush x:Key="DashboardBorderBrush" Color="#334155" />
+                    <SolidColorBrush x:Key="DashboardDividerBrush" Color="#26364C" />
+                    <SolidColorBrush x:Key="DashboardPrimaryTextBrush" Color="#F8FAFC" />
+                    <SolidColorBrush x:Key="DashboardBodyTextBrush" Color="#CBD5E1" />
+                    <SolidColorBrush x:Key="DashboardMutedTextBrush" Color="#94A3B8" />
+                    <SolidColorBrush x:Key="DashboardPlaceholderTextBrush" Color="#64748B" />
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+
+            <SolidColorBrush x:Key="DashboardAccentBrush" Color="#1677FF" />
+            <SolidColorBrush x:Key="DashboardAccentSoftBrush" Color="#EFF6FF" />
+            <SolidColorBrush x:Key="DashboardSuccessBrush" Color="#10B981" />
+            <SolidColorBrush x:Key="DashboardWarningBrush" Color="#F59E0B" />
+            <ThemeShadow x:Key="DashboardCardShadow" />
+
+            <Style x:Key="DashboardQuickButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="{ThemeResource DashboardSurfaceBrush}" />
+                <Setter Property="BorderBrush" Value="{ThemeResource DashboardBorderBrush}" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="CornerRadius" Value="10" />
+                <Setter Property="Padding" Value="10,8" />
+                <Setter Property="MinHeight" Value="54" />
+                <Setter Property="HorizontalContentAlignment" Value="Left" />
+                <Setter Property="VerticalContentAlignment" Value="Center" />
+            </Style>
+
+            <Style x:Key="DashboardGhostButtonStyle" TargetType="Button" BasedOn="{StaticResource QuietButtonStyle}">
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="BorderBrush" Value="{StaticResource DashboardAccentBrush}" />
+                <Setter Property="Foreground" Value="{StaticResource DashboardAccentBrush}" />
+                <Setter Property="CornerRadius" Value="6" />
+                <Setter Property="MinHeight" Value="32" />
+                <Setter Property="Padding" Value="11,5" />
+            </Style>
+
+            <Style x:Key="DashboardSectionBorderStyle" TargetType="Border" BasedOn="{StaticResource SectionBorderStyle}">
+                <Setter Property="Background" Value="{ThemeResource DashboardSurfaceBrush}" />
+                <Setter Property="BorderBrush" Value="{ThemeResource DashboardBorderBrush}" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="CornerRadius" Value="8" />
+                <Setter Property="Padding" Value="12" />
+                <Setter Property="Shadow">
+                    <Setter.Value>
+                        <ThemeShadow />
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </ResourceDictionary>
+    </Page.Resources>
+
+    <ScrollViewer Background="{ThemeResource DashboardBackgroundBrush}" VerticalScrollBarVisibility="Auto">
+        <Grid Margin="20" RowDefinitions="Auto,Auto,Auto,Auto,*" RowSpacing="10" MinWidth="680">
+            <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12">
+                <StackPanel Spacing="3">
+                    <TextBlock Text="工作台" FontSize="22" FontWeight="SemiBold" Foreground="{ThemeResource DashboardPrimaryTextBrush}" />
                 </StackPanel>
-                <ProgressRing Grid.Column="1" Width="22" Height="22" IsActive="{Binding IsBusy}" VerticalAlignment="Center" Margin="0,0,8,0" />
-                <Button Grid.Column="2" Content="候选人档案" Click="OnOpenProfilesClick" Margin="0,0,8,0" />
-                <Button Grid.Column="3" Content="刷新" Click="OnRefreshClick" />
+                <ProgressRing Grid.Column="1" Width="20" Height="20" IsActive="{Binding IsBusy}" VerticalAlignment="Center" />
+                <Button Grid.Column="2" Content="刷新" Click="OnRefreshClick" Style="{StaticResource QuietButtonStyle}" ToolTipService.ToolTip="刷新工作台（F5）">
+                    <Button.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="F5" />
+                    </Button.KeyboardAccelerators>
+                </Button>
             </Grid>
 
-            <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="16">
-                <StackPanel Spacing="5">
-                    <TextBlock Text="候选人档案" Foreground="{ThemeResource AppMutedTextBrush}" />
-                    <TextBlock Text="{Binding ProfileCount}" FontSize="26" FontWeight="SemiBold" />
-                </StackPanel>
-                <StackPanel Grid.Column="1" Spacing="5">
-                    <TextBlock Text="已确认事实" Foreground="{ThemeResource AppMutedTextBrush}" />
-                    <TextBlock Text="{Binding ConfirmedFactCount}" FontSize="26" FontWeight="SemiBold" />
-                </StackPanel>
-                <StackPanel Grid.Column="2" Spacing="5">
-                    <TextBlock Text="已记录岗位" Foreground="{ThemeResource AppMutedTextBrush}" />
-                    <TextBlock Text="{Binding SavedJobCount}" FontSize="26" FontWeight="SemiBold" />
-                </StackPanel>
-                <StackPanel Grid.Column="3" Spacing="5">
-                    <TextBlock Text="待处理事项" Foreground="{ThemeResource AppMutedTextBrush}" />
-                    <TextBlock Text="{Binding PendingActionCount}" FontSize="26" FontWeight="SemiBold" />
-                </StackPanel>
+            <!-- Eight independent KPI cards. The code-behind changes this grid from 8 to 4 columns for narrow windows. -->
+            <Grid x:Name="MetricsGrid" Grid.Row="1" ColumnDefinitions="*,*,*,*,*,*,*,*" RowSpacing="8" ColumnSpacing="8">
+                <Border Shadow="{StaticResource DashboardCardShadow}" Background="{ThemeResource DashboardSurfaceBrush}" BorderBrush="{ThemeResource DashboardBorderBrush}" BorderThickness="1" CornerRadius="12" Padding="16,13" PointerEntered="OnCardPointerEntered" PointerExited="OnCardPointerExited">
+                    <StackPanel Spacing="7">
+                        <TextBlock Text="简历" FontSize="12" Foreground="{ThemeResource DashboardMutedTextBrush}" />
+                        <TextBlock Text="{Binding ProfileCount}" FontSize="24" FontWeight="Bold" Foreground="{ThemeResource DashboardPrimaryTextBrush}" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="1" Shadow="{StaticResource DashboardCardShadow}" Background="{ThemeResource DashboardSurfaceBrush}" BorderBrush="{ThemeResource DashboardBorderBrush}" BorderThickness="1" CornerRadius="12" Padding="16,13" PointerEntered="OnCardPointerEntered" PointerExited="OnCardPointerExited">
+                    <StackPanel Spacing="7">
+                        <TextBlock Text="事实" FontSize="12" Foreground="{ThemeResource DashboardMutedTextBrush}" />
+                        <TextBlock Text="{Binding ConfirmedFactCount}" FontSize="24" FontWeight="Bold" Foreground="{ThemeResource DashboardPrimaryTextBrush}" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="2" Shadow="{StaticResource DashboardCardShadow}" Background="{ThemeResource DashboardSurfaceBrush}" BorderBrush="{ThemeResource DashboardBorderBrush}" BorderThickness="1" CornerRadius="12" Padding="16,13" PointerEntered="OnCardPointerEntered" PointerExited="OnCardPointerExited">
+                    <StackPanel Spacing="7">
+                        <TextBlock Text="岗位" FontSize="12" Foreground="{ThemeResource DashboardMutedTextBrush}" />
+                        <TextBlock Text="{Binding SavedJobCount}" FontSize="24" FontWeight="Bold" Foreground="{ThemeResource DashboardPrimaryTextBrush}" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="3" Shadow="{StaticResource DashboardCardShadow}" Background="{ThemeResource DashboardSurfaceBrush}" BorderBrush="{ThemeResource DashboardBorderBrush}" BorderThickness="1" CornerRadius="12" Padding="16,13" PointerEntered="OnCardPointerEntered" PointerExited="OnCardPointerExited">
+                    <StackPanel Spacing="7">
+                        <TextBlock Text="待处理" FontSize="12" Foreground="{ThemeResource DashboardMutedTextBrush}" />
+                        <TextBlock Text="{Binding PendingActionCount}" FontSize="24" FontWeight="Bold" Foreground="{StaticResource DashboardAccentBrush}" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="4" Shadow="{StaticResource DashboardCardShadow}" Background="{ThemeResource DashboardSurfaceBrush}" BorderBrush="{ThemeResource DashboardBorderBrush}" BorderThickness="1" CornerRadius="12" Padding="16,13" PointerEntered="OnCardPointerEntered" PointerExited="OnCardPointerExited">
+                    <StackPanel Spacing="7">
+                        <TextBlock Text="收藏" FontSize="12" Foreground="{ThemeResource DashboardMutedTextBrush}" />
+                        <TextBlock Text="{Binding FavoriteJobCount}" FontSize="24" FontWeight="Bold" Foreground="{StaticResource DashboardWarningBrush}" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="5" Shadow="{StaticResource DashboardCardShadow}" Background="{ThemeResource DashboardSurfaceBrush}" BorderBrush="{ThemeResource DashboardBorderBrush}" BorderThickness="1" CornerRadius="12" Padding="16,13" PointerEntered="OnCardPointerEntered" PointerExited="OnCardPointerExited">
+                    <StackPanel Spacing="7">
+                        <TextBlock Text="投递" FontSize="12" Foreground="{ThemeResource DashboardMutedTextBrush}" />
+                        <TextBlock Text="{Binding ApplicationCount}" FontSize="24" FontWeight="Bold" Foreground="{ThemeResource DashboardPrimaryTextBrush}" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="6" Shadow="{StaticResource DashboardCardShadow}" Background="{ThemeResource DashboardSurfaceBrush}" BorderBrush="{ThemeResource DashboardBorderBrush}" BorderThickness="1" CornerRadius="12" Padding="16,13" PointerEntered="OnCardPointerEntered" PointerExited="OnCardPointerExited">
+                    <StackPanel Spacing="7">
+                        <TextBlock Text="已投递" FontSize="12" Foreground="{ThemeResource DashboardMutedTextBrush}" />
+                        <TextBlock Text="{Binding SubmittedApplicationCount}" FontSize="24" FontWeight="Bold" Foreground="{StaticResource DashboardSuccessBrush}" />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="7" Shadow="{StaticResource DashboardCardShadow}" Background="{ThemeResource DashboardSurfaceBrush}" BorderBrush="{ThemeResource DashboardBorderBrush}" BorderThickness="1" CornerRadius="12" Padding="16,13" PointerEntered="OnCardPointerEntered" PointerExited="OnCardPointerExited">
+                    <StackPanel Spacing="7">
+                        <TextBlock Text="流程进度" FontSize="12" Foreground="{ThemeResource DashboardMutedTextBrush}" />
+                        <TextBlock Text="{Binding WorkflowProgress}" FontSize="24" FontWeight="Bold" Foreground="{StaticResource DashboardWarningBrush}" />
+                    </StackPanel>
+                </Border>
             </Grid>
 
-            <Grid ColumnDefinitions="2*,*" ColumnSpacing="32">
-                <StackPanel Spacing="10">
-                    <Grid ColumnDefinitions="*,Auto" Padding="0,0,0,8" BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="0,0,0,1">
-                        <TextBlock Text="最近查看的岗位" Style="{StaticResource SubtitleTextBlockStyle}" />
-                        <Button Grid.Column="1" Content="查看全部" Click="OnOpenJobsClick" Padding="8,4" />
+            <Grid Grid.Row="2" ColumnDefinitions="*,*,*,*" ColumnSpacing="10">
+                <Button Click="OnOpenBrowserClick" Style="{StaticResource DashboardQuickButtonStyle}">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="11">
+                        <FontIcon Glyph="&#xE721;" FontSize="22" Foreground="{StaticResource DashboardAccentBrush}" VerticalAlignment="Center" />
+                        <StackPanel Grid.Column="1" Spacing="2">
+                            <TextBlock Text="浏览岗位" FontSize="15" FontWeight="SemiBold" Foreground="{ThemeResource DashboardPrimaryTextBrush}" />
+                        </StackPanel>
                     </Grid>
-                    <ItemsRepeater ItemsSource="{Binding RecentPostings}">
-                        <ItemsRepeater.ItemTemplate>
-                            <DataTemplate>
-                                <Grid ColumnDefinitions="*,Auto" Padding="0,10" BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="0,0,0,1">
-                                    <StackPanel Spacing="3">
-                                        <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                                        <TextBlock Text="{Binding Company}" Foreground="{ThemeResource AppMutedTextBrush}" TextTrimming="CharacterEllipsis" />
-                                    </StackPanel>
-                                    <Button Grid.Column="1" Content="打开岗位" Tag="{Binding Url}" Click="OnOpenPostingClick" VerticalAlignment="Center" />
-                                </Grid>
-                            </DataTemplate>
-                        </ItemsRepeater.ItemTemplate>
-                    </ItemsRepeater>
-                    <TextBlock Text="{Binding EmptyJobsMessage}" TextWrapping="Wrap" Foreground="{ThemeResource AppMutedTextBrush}" />
-                    <Button Content="打开招聘浏览器" Click="OnOpenBrowserClick" HorizontalAlignment="Left" />
-                </StackPanel>
-
-                <StackPanel Grid.Column="1" Spacing="12">
-                    <TextBlock Text="运行环境" Style="{StaticResource SubtitleTextBlockStyle}" />
-                    <ItemsRepeater ItemsSource="{Binding ReadinessItems}">
-                        <ItemsRepeater.ItemTemplate>
-                            <DataTemplate>
-                                <StackPanel Spacing="5" Padding="0,2">
-                                    <TextBlock Text="{Binding Name}" Foreground="{ThemeResource AppMutedTextBrush}" />
-                                    <TextBlock Text="{Binding Status}" TextWrapping="Wrap" />
-                                </StackPanel>
-                            </DataTemplate>
-                        </ItemsRepeater.ItemTemplate>
-                    </ItemsRepeater>
-                    <TextBlock Text="数据库和候选人信息保存在此设备。" TextWrapping="Wrap" Foreground="{ThemeResource AppMutedTextBrush}" />
-                    <Button Content="查看投递与复核" Click="OnOpenApplicationsClick" HorizontalAlignment="Left" />
-                </StackPanel>
+                </Button>
+                <Button Grid.Column="1" Click="OnOpenProfilesClick" Style="{StaticResource DashboardQuickButtonStyle}">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="11">
+                        <FontIcon Glyph="&#xE77B;" FontSize="22" Foreground="{StaticResource DashboardAccentBrush}" VerticalAlignment="Center" />
+                        <StackPanel Grid.Column="1" Spacing="2">
+                            <TextBlock Text="求职者简历" FontSize="15" FontWeight="SemiBold" Foreground="{ThemeResource DashboardPrimaryTextBrush}" />
+                        </StackPanel>
+                    </Grid>
+                </Button>
+                <Button Grid.Column="2" Click="OnOpenApplicationsClick" Style="{StaticResource DashboardQuickButtonStyle}">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="11">
+                        <FontIcon Glyph="&#xE8A1;" FontSize="22" Foreground="{StaticResource DashboardAccentBrush}" VerticalAlignment="Center" />
+                        <StackPanel Grid.Column="1" Spacing="2">
+                            <TextBlock Text="投递记录" FontSize="15" FontWeight="SemiBold" Foreground="{ThemeResource DashboardPrimaryTextBrush}" />
+                        </StackPanel>
+                    </Grid>
+                </Button>
+                <Button Grid.Column="3" Click="OnOpenJobsClick" Style="{StaticResource DashboardQuickButtonStyle}">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="11">
+                        <FontIcon Glyph="&#xE8B6;" FontSize="22" Foreground="{StaticResource DashboardAccentBrush}" VerticalAlignment="Center" />
+                        <StackPanel Grid.Column="1" Spacing="2">
+                            <TextBlock Text="岗位记录" FontSize="15" FontWeight="SemiBold" Foreground="{ThemeResource DashboardPrimaryTextBrush}" />
+                        </StackPanel>
+                    </Grid>
+                </Button>
             </Grid>
 
-            <TextBlock Text="{Binding StatusMessage}" TextWrapping="Wrap" Foreground="{ThemeResource AppMutedTextBrush}" />
-        </StackPanel>
+            <Grid Grid.Row="3" ColumnDefinitions="1.15*,*" ColumnSpacing="16">
+                <Border Grid.Column="0" Style="{StaticResource DashboardSectionBorderStyle}">
+                    <StackPanel Spacing="14">
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                            <TextBlock Text="下一步" FontSize="18" FontWeight="SemiBold" Foreground="{ThemeResource DashboardPrimaryTextBrush}" />
+                            <TextBlock Grid.Column="1" Text="{Binding WorkflowProgress}" FontSize="13" FontWeight="SemiBold" Foreground="{StaticResource DashboardAccentBrush}" VerticalAlignment="Center" />
+                        </Grid>
+                        <ProgressBar Value="{Binding WorkflowProgressValue}" Maximum="100" Height="6" Foreground="{StaticResource DashboardAccentBrush}" Background="{ThemeResource DashboardInsetBrush}" />
+                        <ItemsRepeater ItemsSource="{Binding WorkflowSteps}">
+                            <ItemsRepeater.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnDefinitions="32,*,Auto" ColumnSpacing="10" Padding="0,8" BorderBrush="{ThemeResource DashboardDividerBrush}" BorderThickness="0,0,0,1">
+                                        <CheckBox IsChecked="{Binding IsComplete}" IsEnabled="False" IsHitTestVisible="False" VerticalAlignment="Top" HorizontalAlignment="Center" />
+                                        <StackPanel Grid.Column="1" Spacing="4">
+                                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                                <TextBlock Text="{Binding Title}" FontSize="14" FontWeight="SemiBold" Foreground="{ThemeResource DashboardPrimaryTextBrush}" TextTrimming="CharacterEllipsis" />
+                                                <TextBlock Grid.Column="1" Text="{Binding StatusLabel}" FontSize="11" Foreground="{StaticResource DashboardAccentBrush}" VerticalAlignment="Center" />
+                                            </Grid>
+                                            <TextBlock Text="{Binding Description}" FontSize="12" Foreground="{ThemeResource DashboardMutedTextBrush}" TextWrapping="Wrap" MaxLines="2" />
+                                        </StackPanel>
+                                        <Button Grid.Column="2" Content="{Binding ActionLabel}" Tag="{Binding Route}" Click="OnWorkflowActionClick" Style="{StaticResource DashboardGhostButtonStyle}" VerticalAlignment="Top" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsRepeater.ItemTemplate>
+                        </ItemsRepeater>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="1" Style="{StaticResource DashboardSectionBorderStyle}">
+                    <StackPanel Spacing="14">
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                            <TextBlock Text="投递漏斗" FontSize="18" FontWeight="SemiBold" Foreground="{ThemeResource DashboardPrimaryTextBrush}" />
+                        </Grid>
+                        <ItemsRepeater ItemsSource="{Binding ApplicationFunnel}">
+                            <ItemsRepeater.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnDefinitions="58,*,Auto" ColumnSpacing="10" Padding="0,8">
+                                        <TextBlock Text="{Binding Label}" FontSize="13" Foreground="{ThemeResource DashboardBodyTextBrush}" VerticalAlignment="Center" />
+                                        <ProgressBar Grid.Column="1" Value="{Binding Percentage}" Maximum="100" Height="8" VerticalAlignment="Center" Foreground="{StaticResource DashboardAccentBrush}" Background="{ThemeResource DashboardInsetBrush}" />
+                                        <TextBlock Grid.Column="2" Text="{Binding CountLabel}" FontSize="13" FontWeight="SemiBold" Foreground="{StaticResource DashboardAccentBrush}" VerticalAlignment="Center" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsRepeater.ItemTemplate>
+                        </ItemsRepeater>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <Grid Grid.Row="4" ColumnDefinitions="1.15*,*" ColumnSpacing="16">
+                <Border Grid.Column="0" Style="{StaticResource DashboardSectionBorderStyle}">
+                    <StackPanel Spacing="12">
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                            <TextBlock Text="最近岗位" FontSize="18" FontWeight="SemiBold" Foreground="{ThemeResource DashboardPrimaryTextBrush}" />
+                            <Button Grid.Column="1" Content="全部" Click="OnOpenJobsClick" Style="{StaticResource DashboardGhostButtonStyle}" Padding="9,4" />
+                        </Grid>
+                        <ItemsRepeater ItemsSource="{Binding RecentPostings}">
+                            <ItemsRepeater.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnDefinitions="3,*,Auto" ColumnSpacing="12" Padding="0,9" BorderBrush="{ThemeResource DashboardDividerBrush}" BorderThickness="0,0,0,1">
+                                        <Rectangle Fill="{StaticResource DashboardAccentBrush}" RadiusX="2" RadiusY="2" Opacity="0.78" />
+                                        <StackPanel Grid.Column="1" Spacing="4">
+                                            <TextBlock Text="{Binding Title}" FontSize="14" FontWeight="SemiBold" Foreground="{ThemeResource DashboardPrimaryTextBrush}" TextTrimming="CharacterEllipsis" />
+                                            <TextBlock Text="{Binding Company}" FontSize="12" Foreground="{ThemeResource DashboardMutedTextBrush}" TextTrimming="CharacterEllipsis" />
+                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                <TextBlock Text="{Binding City}" FontSize="12" Foreground="{ThemeResource DashboardMutedTextBrush}" />
+                                                <Border Background="{ThemeResource DashboardAccentSoftBrush}" CornerRadius="4" Padding="6,2" MaxWidth="230">
+                                                    <TextBlock Text="{Binding Skills}" FontSize="11" Foreground="{StaticResource DashboardAccentBrush}" TextTrimming="CharacterEllipsis" />
+                                                </Border>
+                                            </StackPanel>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2" Spacing="7" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Salary}" FontSize="13" FontWeight="Bold" Foreground="{StaticResource DashboardWarningBrush}" HorizontalAlignment="Right" />
+                                            <Button Content="打开" Tag="{Binding Url}" Click="OnOpenPostingClick" Style="{StaticResource DashboardGhostButtonStyle}" Padding="9,4" MinHeight="28" />
+                                        </StackPanel>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsRepeater.ItemTemplate>
+                        </ItemsRepeater>
+                        <TextBlock Text="{Binding EmptyJobsMessage}" TextWrapping="Wrap" FontSize="12" Foreground="{ThemeResource DashboardPlaceholderTextBrush}" />
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="1" Style="{StaticResource DashboardSectionBorderStyle}">
+                    <StackPanel Spacing="12">
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                            <TextBlock Text="近 7 天投递" FontSize="18" FontWeight="SemiBold" Foreground="{ThemeResource DashboardPrimaryTextBrush}" />
+                        </Grid>
+                        <ItemsRepeater ItemsSource="{Binding ApplicationTrend}">
+                            <ItemsRepeater.Layout>
+                                <StackLayout Orientation="Horizontal" Spacing="8" />
+                            </ItemsRepeater.Layout>
+                            <ItemsRepeater.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Width="34" Height="126" RowDefinitions="*,Auto" VerticalAlignment="Bottom">
+                                        <Border Height="{Binding BarHeight}" Background="{StaticResource DashboardAccentBrush}" CornerRadius="5,5,2,2" VerticalAlignment="Bottom" Opacity="0.86" />
+                                        <TextBlock Grid.Row="1" Text="{Binding DayLabel}" HorizontalAlignment="Center" FontSize="11" Foreground="{ThemeResource DashboardMutedTextBrush}" Margin="0,6,0,0" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsRepeater.ItemTemplate>
+                        </ItemsRepeater>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Grid>
     </ScrollViewer>
 </Page>

@@ -35,6 +35,10 @@ public static class BossWebViewInitializer
                 $"WebView2 已初始化，运行时版本：{runtimeStatus.Version}",
                 environment);
         }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
         catch (Exception exception)
         {
             return new WebView2InitializationResult(

@@ -22,12 +22,17 @@ public static class BossFindHost
             .UseBossFindLogging(logDirectory)
             .ConfigureServices((_, services) =>
             {
+                services.AddHostedService<LogRetentionHostedService>(serviceProvider =>
+                    new LogRetentionHostedService(
+                        logDirectory,
+                        serviceProvider.GetRequiredService<Microsoft.Extensions.Logging.ILogger<LogRetentionHostedService>>()));
                 services.AddBossFindInfrastructure(Path.Combine(databaseDirectory, "bossfind.db"));
                 services.AddSingleton<ShellViewModel>();
                 services.AddSingleton<DashboardViewModel>();
                 services.AddSingleton<BossBrowserViewModel>();
                 services.AddSingleton<SettingsViewModel>();
                 services.AddSingleton<CandidateProfileService>();
+                services.AddSingleton<ResumeDocumentImportService>();
                 services.AddSingleton<JobCandidateImportService>();
                 services.AddSingleton<CandidateProfilesViewModel>();
                 services.AddSingleton<JobsViewModel>();

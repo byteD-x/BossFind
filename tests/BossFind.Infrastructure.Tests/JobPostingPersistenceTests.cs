@@ -43,6 +43,55 @@ public sealed class JobPostingPersistenceTests
     }
 
     [Fact]
+    public async Task Recording_a_batch_deduplicates_search_cards_and_skips_invalid_links()
+    {
+        var databasePath = CreateDatabasePath();
+        try
+        {
+            var options = CreateOptions(databasePath);
+            await MigrateAsync(options);
+            await using var contexts = CreateFactory(databasePath);
+            var service = new JobPostingService(new CandidateProfileRepository(contexts));
+
+            var saved = await service.RecordViewedBatchAsync(
+            [
+                CreateDraft(),
+                CreateDraft() with { Title = "重复卡片标题" },
+                CreateDraft() with { ExternalId = "", Url = "not-a-url" }
+            ]);
+
+            var posting = Assert.Single(saved);
+            Assert.Equal("后端工程师", posting.Title);
+            Assert.Equal(1, posting.ViewCount);
+        }
+        finally
+        {
+            DeleteDatabaseFiles(databasePath);
+        }
+    }
+
+    [Fact]
+    public async Task Recording_a_posting_rejects_an_invalid_url()
+    {
+        var databasePath = CreateDatabasePath();
+        try
+        {
+            var options = CreateOptions(databasePath);
+            await MigrateAsync(options);
+            await using var contexts = CreateFactory(databasePath);
+            var service = new JobPostingService(new CandidateProfileRepository(contexts));
+
+            await Assert.ThrowsAsync<ArgumentException>(() => service.RecordViewedAsync(
+                CreateDraft() with { Url = "not-a-url" },
+                "also-not-a-url"));
+        }
+        finally
+        {
+            DeleteDatabaseFiles(databasePath);
+        }
+    }
+
+    [Fact]
     public async Task Favorite_survives_later_views_of_the_same_posting()
     {
         var databasePath = CreateDatabasePath();

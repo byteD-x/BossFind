@@ -55,7 +55,15 @@ public sealed class DashboardViewModelTests
         Assert.Equal("2", viewModel.ConfirmedFactCount);
         Assert.Equal("1", viewModel.SavedJobCount);
         Assert.Equal("2", viewModel.PendingActionCount);
+        Assert.Equal("0", viewModel.FavoriteJobCount);
+        Assert.Equal("1", viewModel.ApplicationCount);
+        Assert.Equal("0", viewModel.SubmittedApplicationCount);
+        Assert.Equal("2/5", viewModel.WorkflowProgress);
+        Assert.Equal("筛选并匹配岗位", viewModel.NextStepTitle);
+        Assert.Equal("browser", viewModel.NextStepRoute);
         Assert.Single(viewModel.RecentPostings);
+        Assert.Equal(5, viewModel.WorkflowSteps.Count);
+        Assert.Equal("现在处理", viewModel.WorkflowSteps[2].StatusLabel);
         Assert.Equal(0, repository.GetProfileCallCount);
         Assert.False(viewModel.IsBusy);
     }
@@ -72,7 +80,40 @@ public sealed class DashboardViewModelTests
         Assert.Equal("0", viewModel.ConfirmedFactCount);
         Assert.Equal("0", viewModel.SavedJobCount);
         Assert.Equal("0", viewModel.PendingActionCount);
+        Assert.Equal("0/5", viewModel.WorkflowProgress);
+        Assert.Equal("准备求职者简历", viewModel.NextStepTitle);
+        Assert.Equal("profiles", viewModel.NextStepRoute);
         Assert.Contains("还没有岗位记录", viewModel.EmptyJobsMessage, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task LoadAsync_prefers_favorite_posting_when_ready_to_apply()
+    {
+        var repository = new InMemoryRepository();
+        repository.Profiles.Add(new CandidateProfile
+        {
+            Name = "林晓",
+            Facts = [new CandidateFact { IsConfirmed = true }]
+        });
+        repository.Postings.Add(new JobPosting
+        {
+            Title = "普通岗位",
+            Url = "https://example.test/ordinary"
+        });
+        repository.Postings.Add(new JobPosting
+        {
+            Title = "目标岗位",
+            Url = "https://example.test/target",
+            IsFavorite = true
+        });
+        var viewModel = CreateViewModel(repository);
+
+        await viewModel.LoadAsync();
+
+        Assert.Equal("确认并完成投递", viewModel.NextStepTitle);
+        Assert.Equal("browser", viewModel.NextStepRoute);
+        Assert.Equal("https://example.test/target", viewModel.NextStepUrl);
+        Assert.Equal("3/5", viewModel.WorkflowProgress);
     }
 
     [Fact]

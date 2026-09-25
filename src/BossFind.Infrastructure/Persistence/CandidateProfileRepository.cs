@@ -95,9 +95,19 @@ public sealed class CandidateProfileRepository(IDbContextFactory<AppDbContext> c
 
     public async Task<JobPosting?> FindByExternalIdAsync(string platform, string externalId, CancellationToken cancellationToken = default)
     {
+        if (string.IsNullOrWhiteSpace(platform) || string.IsNullOrWhiteSpace(externalId))
+        {
+            return null;
+        }
+
         await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
-        if (string.IsNullOrWhiteSpace(externalId)) return null;
-        return await context.JobPostings.SingleOrDefaultAsync(posting => posting.Platform == platform && posting.ExternalId == externalId, cancellationToken);
+        var normalizedPlatform = platform.Trim();
+        var normalizedExternalId = externalId.Trim();
+        return await context.JobPostings
+            .AsNoTracking()
+            .SingleOrDefaultAsync(
+                posting => posting.Platform == normalizedPlatform && posting.ExternalId == normalizedExternalId,
+                cancellationToken);
     }
 
     public async Task<IReadOnlyList<JobPosting>> ListAsync(bool favoritesOnly = false, CancellationToken cancellationToken = default)
@@ -105,7 +115,11 @@ public sealed class CandidateProfileRepository(IDbContextFactory<AppDbContext> c
         await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
         var query = context.JobPostings.AsNoTracking();
         if (favoritesOnly) query = query.Where(posting => posting.IsFavorite);
-        return await query.OrderByDescending(posting => posting.LastViewedAtUtc).ThenBy(posting => posting.Title).ToListAsync(cancellationToken);
+        return await query
+            .OrderByDescending(posting => posting.LastViewedAtUtc)
+            .ThenBy(posting => posting.Title)
+            .ThenBy(posting => posting.Id)
+            .ToListAsync(cancellationToken);
     }
 
     public async Task<JobPosting> UpsertAsync(JobPosting posting, CancellationToken cancellationToken = default)
@@ -148,7 +162,13 @@ public sealed class CandidateProfileRepository(IDbContextFactory<AppDbContext> c
     public async Task<IReadOnlyList<JobApplication>> ListApplicationsAsync(CancellationToken cancellationToken = default)
     {
         await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
-        return await context.JobApplications.AsNoTracking().Include(application => application.JobPosting).Include(application => application.CandidateProfile).OrderByDescending(application => application.CreatedAtUtc).ToListAsync(cancellationToken);
+        return await context.JobApplications
+            .AsNoTracking()
+            .Include(application => application.JobPosting)
+            .Include(application => application.CandidateProfile)
+            .OrderByDescending(application => application.CreatedAtUtc)
+            .ThenBy(application => application.Id)
+            .ToListAsync(cancellationToken);
     }
 
     public async Task UpdateApplicationStatusAsync(Guid id, JobApplicationStatus status, CancellationToken cancellationToken = default)

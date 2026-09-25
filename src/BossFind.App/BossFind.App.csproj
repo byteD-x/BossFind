@@ -34,5 +34,25 @@
     <Content Include="Assets\WebView2\fixture.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Assets\BossFindIcon.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\Square44x44Logo.png;Assets\Square150x150Logo.png;Assets\StoreLogo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\*.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
+
+  <Target Name="ExcludePlaywrightRuntimeFromPri"
+          BeforeTargets="_GenerateProjectPriConfigurationFiles"
+          DependsOnTargets="GetPackagingOutputs">
+    <!-- Playwright runtime files are payloads, not WinUI resources. Their hashed file names contain '-' and
+         are otherwise interpreted as invalid PRI qualifiers (PRI249). -->
+    <ItemGroup>
+      <_AppxLayoutAssetPackageFiles Include="@(PackagingOutputs)"
+                                    Condition="$([System.String]::Copy('%(PackagingOutputs.TargetPath)').StartsWith('.playwright\', StringComparison.OrdinalIgnoreCase)) Or $([System.String]::Copy('%(PackagingOutputs.TargetPath)').StartsWith('BossFind.Platform.Boss\.playwright\', StringComparison.OrdinalIgnoreCase))" />
+    </ItemGroup>
+  </Target>
 </Project>

@@ -17,6 +17,8 @@ public static class LoggingRegistration
                 rollingInterval: RollingInterval.Day,
                 formatProvider: System.Globalization.CultureInfo.InvariantCulture,
                 retainedFileCountLimit: 14,
+                fileSizeLimitBytes: 4 * 1024 * 1024,
+                rollOnFileSizeLimit: true,
                 shared: true));
     }
 }

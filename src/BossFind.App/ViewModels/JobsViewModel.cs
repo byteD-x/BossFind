@@ -61,8 +61,11 @@ public sealed partial class JobsViewModel(
         try
         {
             var selectedProfileId = SelectedCandidateProfile?.Id;
-            var postings = await jobRepository.ListAsync(cancellationToken: cancellationToken);
-            var profiles = await profileService.ListAsync(cancellationToken: cancellationToken);
+            var postingsTask = jobRepository.ListAsync(cancellationToken: cancellationToken);
+            var profilesTask = profileService.ListAsync(cancellationToken: cancellationToken);
+            await Task.WhenAll(postingsTask, profilesTask);
+            var postings = await postingsTask;
+            var profiles = await profilesTask;
             Postings.Clear();
             foreach (var posting in postings) Postings.Add(posting);
             CandidateProfiles.Clear();

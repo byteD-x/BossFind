@@ -29,7 +29,7 @@ public sealed class BossBrowserViewModelTests
 
         var profile = Assert.Single(repository.Profiles);
         Assert.Equal("林晓", profile.Name);
-        Assert.Equal("已导入候选人档案：林晓", viewModel.Status);
+        Assert.Equal("已导入求职者简历：林晓", viewModel.Status);
         Assert.False(viewModel.IsBusy);
         Assert.Equal("C#、.NET", viewModel.Tags);
     }
@@ -81,7 +81,7 @@ public sealed class BossBrowserViewModelTests
         repository.ReleaseProfileAdd.TrySetResult(true);
         await firstImport;
 
-        Assert.Equal("已导入候选人档案：待补充候选人", viewModel.Status);
+        Assert.Equal("已导入求职者简历：待补充求职者简历", viewModel.Status);
         Assert.False(viewModel.IsBusy);
         Assert.Single(repository.Profiles);
     }
@@ -117,7 +117,7 @@ public sealed class BossBrowserViewModelTests
         Assert.Equal("无", viewModel.Matches[0].MissingSkillsText);
         Assert.Equal("命中技能：C#、.NET", viewModel.Matches[0].MatchedSkillsLabel);
         Assert.Equal("缺失技能：无", viewModel.Matches[0].MissingSkillsLabel);
-        Assert.Equal("已匹配 2 个候选人档案。", viewModel.MatchStatus);
+        Assert.Equal("已为 2 份简历生成匹配度。", viewModel.MatchStatus);
         Assert.False(viewModel.IsBusy);
     }
 
@@ -130,7 +130,7 @@ public sealed class BossBrowserViewModelTests
         await viewModel.MatchAsync();
 
         Assert.Empty(viewModel.Matches);
-        Assert.Equal("暂无候选人档案，请先在档案页创建。", viewModel.MatchStatus);
+        Assert.Equal("暂无可用简历，请先在求职者简历中创建档案。", viewModel.MatchStatus);
         Assert.False(viewModel.IsBusy);
     }
 

@@ -2,23 +2,23 @@
 
 [![Build](https://github.com/byteD-x/BossFind/actions/workflows/build.yml/badge.svg)](https://github.com/byteD-x/BossFind/actions/workflows/build.yml)
 
-BossFind 是一个本地优先的 Windows 求职工作台原型，使用 WinUI 3 管理候选人档案、事实记录、岗位摘要和本地数据导出。项目把招聘平台浏览器容器与本地业务数据分层，当前以固定 HTML fixture 驱动平台解析测试。
+BossFind 是一个本地优先的 Windows 求职工作台，使用 WinUI 3 管理求职者简历、岗位摘要、投递流程和本地数据导出。项目把招聘平台浏览器容器与本地业务数据分层，测试使用固定 HTML fixture 驱动平台解析。
 
 ## 当前能力
 
-- WinUI 3 导航、工作台、候选人档案和事实记录管理。
+- WinUI 3 导航、工作台、求职者简历和内容记录管理。
 - 按姓名、职位标题和所在地搜索档案。
 - 使用 AngleSharp 解析岗位详情，并将浏览记录、收藏和岗位信息保存在本地。
-- 将岗位摘要导入候选人档案，并生成来源可追溯的经验/技能事实。
-- 使用确定性规则计算岗位与候选人匹配结果，输出匹配技能、缺失技能和解释文本。
+- 将岗位摘要导入求职者简历，并生成来源可追溯的经验/技能事实。
+- 使用本地规则计算岗位与简历匹配结果；配置 LLM 接口后可切换为混合匹配，并输出匹配技能、缺失技能和解释文本。
 - 搜索和筛选岗位记录，跟进手动投递记录与人工复核队列，并查看本地岗位分析。
-- 将候选人档案和事实导出为稳定排序的 UTF-8 JSON。
+- 将求职者简历和事实导出为稳定排序的 UTF-8 JSON；支持本地数据库备份、恢复和投递 Excel 报表。
 - 独立 WebView2 Profile、CDP/Playwright/PDF 封装、SQLite/EF Core 迁移和 Serilog 日志基线。
 - Windows x64 MSIX 发布配置与 GitHub Actions 构建测试流程。
 
 ## 当前边界
 
-Boss 浏览器默认打开 BOSS 直聘，也保留本地示例岗位入口；页面在独立 WebView2 Profile 中运行，岗位详情会按常见页面结构解析并保存到本地。投递动作仍由用户在平台页面手动确认，JD 深度解析、AI 生成和批量自动化属于后续阶段。
+Boss 浏览器默认打开 BOSS 直聘，页面在独立 WebView2 Profile 中运行，岗位详情会按常见页面结构解析并保存到本地。登录状态保存在该 Profile 中，投递动作仍由用户在平台页面手动确认；岗位摘要、匹配度和打招呼语可在右侧工具区生成。
 
 ## 技术栈
 

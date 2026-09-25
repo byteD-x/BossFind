@@ -19,20 +19,43 @@ public sealed record JobPostingDraft(
 
 public sealed class JobPostingService(IJobRepository repository)
 {
+    private const string PlatformName = "Boss直聘";
+
+    public async Task<IReadOnlyList<JobPosting>> RecordViewedBatchAsync(
+        IEnumerable<JobPostingDraft> summaries,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(summaries);
+
+        var postings = new List<JobPosting>();
+        var seenKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var summary in summaries)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ArgumentNullException.ThrowIfNull(summary);
+            if (!TryGetBatchKey(summary, out var key) || !seenKeys.Add(key))
+            {
+                continue;
+            }
+
+            postings.Add(await RecordViewedAsync(summary, summary.Url, cancellationToken));
+        }
+
+        return postings;
+    }
+
     public async Task<JobPosting> RecordViewedAsync(
         JobPostingDraft summary,
         string url,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(summary);
-        var postingUrl = Uri.TryCreate(summary.Url, UriKind.Absolute, out var summaryUrl)
-            && (summaryUrl.Scheme == Uri.UriSchemeHttp || summaryUrl.Scheme == Uri.UriSchemeHttps)
-                ? summaryUrl.AbsoluteUri
-                : url;
+        var postingUrl = NormalizeUrl(summary.Url) ?? NormalizeUrl(url)
+            ?? throw new ArgumentException("岗位链接必须是有效的 HTTP 或 HTTPS 地址。", nameof(url));
         var externalId = string.IsNullOrWhiteSpace(summary.ExternalId)
             ? Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(postingUrl)))
             : summary.ExternalId.Trim();
-        var posting = await repository.FindByExternalIdAsync("Boss直聘", externalId, cancellationToken);
+        var posting = await repository.FindByExternalIdAsync(PlatformName, externalId, cancellationToken);
         if (posting is null)
         {
             posting = new JobPosting { FirstSeenAtUtc = DateTime.UtcNow, ViewCount = 1 };
@@ -42,20 +65,59 @@ public sealed class JobPostingService(IJobRepository repository)
             posting.ViewCount++;
         }
 
-        posting.Platform = "Boss直聘";
+        posting.Platform = PlatformName;
         posting.ExternalId = externalId;
         posting.Url = postingUrl;
-        posting.Title = summary.Title;
-        posting.Company = summary.Company;
-        posting.City = summary.City;
-        posting.Salary = summary.Salary;
-        posting.Experience = summary.Experience;
-        posting.Education = summary.Education;
-        posting.Benefits = string.Join("、", summary.Benefits ?? []);
-        posting.Description = summary.Description;
-        posting.Skills = string.Join("、", summary.Skills);
+        posting.Title = NormalizeText(summary.Title);
+        posting.Company = NormalizeText(summary.Company);
+        posting.City = NormalizeText(summary.City);
+        posting.Salary = NormalizeText(summary.Salary);
+        posting.Experience = NormalizeText(summary.Experience);
+        posting.Education = NormalizeText(summary.Education);
+        posting.Benefits = JoinDistinct(summary.Benefits);
+        posting.Description = NormalizeText(summary.Description);
+        posting.Skills = JoinDistinct(summary.Skills);
         posting.LastViewedAtUtc = DateTime.UtcNow;
         return await repository.UpsertAsync(posting, cancellationToken);
+    }
+
+    private static bool TryGetBatchKey(JobPostingDraft summary, out string key)
+    {
+        var url = NormalizeUrl(summary.Url);
+        if (url is null)
+        {
+            key = string.Empty;
+            return false;
+        }
+
+        if (!string.IsNullOrWhiteSpace(summary.ExternalId))
+        {
+            key = $"id:{summary.ExternalId.Trim()}";
+            return true;
+        }
+
+        key = $"url:{url}";
+        return true;
+    }
+
+    private static string? NormalizeUrl(string? value)
+    {
+        return Uri.TryCreate(value?.Trim(), UriKind.Absolute, out var uri)
+            && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps)
+                ? uri.AbsoluteUri
+                : null;
+    }
+
+    private static string NormalizeText(string? value) => value?.Trim() ?? string.Empty;
+
+    private static string JoinDistinct(IReadOnlyList<string>? values)
+    {
+        return string.Join(
+            "、",
+            (values ?? [])
+                .Select(NormalizeText)
+                .Where(static value => value.Length > 0)
+                .Distinct(StringComparer.OrdinalIgnoreCase));
     }
 
     public async Task SetFavoriteAsync(JobPosting posting, bool isFavorite, CancellationToken cancellationToken = default)

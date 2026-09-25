@@ -36,22 +36,16 @@ public sealed class JsonCandidateProfileExportService : ICandidateProfileExportS
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(filePath);
 
+        // ListProfilesAsync 已通过 Include 一次性加载事实，直接复用结果，避免每个档案再发起一次查询。
         var profiles = await repository.ListProfilesAsync(null, cancellationToken);
         var exportProfiles = new List<ExportProfile>(profiles.Count);
-
         foreach (var profile in profiles
                      .OrderByDescending(profile => profile.UpdatedAtUtc)
                      .ThenBy(profile => profile.Name, StringComparer.Ordinal)
                      .ThenBy(profile => profile.Id))
         {
             cancellationToken.ThrowIfCancellationRequested();
-            var profileWithFacts = await repository.GetProfileAsync(profile.Id, cancellationToken);
-            if (profileWithFacts is null)
-            {
-                continue;
-            }
-
-            exportProfiles.Add(MapProfile(profileWithFacts));
+            exportProfiles.Add(MapProfile(profile));
         }
 
         var document = new ExportDocument(exportProfiles);

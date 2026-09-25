@@ -2,21 +2,55 @@
     x:Class="BossFind.App.Views.SettingsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <StackPanel Margin="32" MaxWidth="760" Spacing="16">
-        <TextBlock Text="设置" Style="{StaticResource TitleTextBlockStyle}" />
-        <TextBlock Text="管理本地数据文件。不会导出平台登录态或访问网络。" TextWrapping="Wrap" />
-        <TextBox Header="候选人数据导出路径" Text="{Binding ExportPath, Mode=TwoWay}" />
-        <StackPanel Orientation="Horizontal" Spacing="12">
-            <Button Content="导出 JSON" Click="OnExportClick" />
-            <ProgressRing Width="24" Height="24" IsActive="{Binding IsBusy}" />
-        </StackPanel>
-        <TextBlock Text="{Binding Status}" TextWrapping="Wrap" Opacity="0.72" />
-        <Border BorderThickness="0,1,0,0" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" Padding="0,16,0,0">
-            <StackPanel Spacing="10">
-                <TextBlock Text="网页容器" Style="{StaticResource SubtitleTextBlockStyle}" />
-                <TextBlock Text="清理独立 Profile 会移除本地 WebView2 登录态和缓存。" TextWrapping="Wrap" />
-                <Button Content="清理 WebView2 Profile" Click="OnClearWebViewProfileClick" />
+    <ScrollViewer Background="{ThemeResource AppBackgroundBrush}" VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="32" MaxWidth="760" Spacing="18">
+            <StackPanel Spacing="3">
+                <TextBlock Text="设置" Style="{StaticResource TitleTextBlockStyle}" />
             </StackPanel>
-        </Border>
-    </StackPanel>
+
+            <Border Style="{StaticResource SectionBorderStyle}">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="求职者简历数据" Style="{StaticResource SubtitleTextBlockStyle}" />
+                    <TextBox Header="导出路径" Text="{Binding ExportPath, Mode=TwoWay}" />
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <Button Content="导出 JSON" Click="OnExportClick" Style="{StaticResource PrimaryButtonStyle}" />
+                        <ProgressRing Width="24" Height="24" IsActive="{Binding IsBusy}" VerticalAlignment="Center" />
+                    </StackPanel>
+                    <TextBlock Text="{Binding Status}" TextWrapping="Wrap" Foreground="{ThemeResource AppMutedTextBrush}" />
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource SectionBorderStyle}">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="本地数据" Style="{StaticResource SubtitleTextBlockStyle}" />
+                    <TextBlock Text="备份包含岗位、投递、复核和求职者简历。恢复后重启应用即可生效。" TextWrapping="Wrap" Foreground="{ThemeResource AppMutedTextBrush}" />
+                    <TextBox Header="备份文件" Text="{Binding BackupPath, Mode=TwoWay}" />
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <Button Content="立即备份" Click="OnBackupClick" Style="{StaticResource PrimaryButtonStyle}" />
+                        <Button Content="从备份恢复" Click="OnRestoreClick" Style="{StaticResource QuietButtonStyle}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource SectionBorderStyle}">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="投递报表" Style="{StaticResource SubtitleTextBlockStyle}" />
+                    <TextBox Header="报表路径" Text="{Binding ExcelExportPath, Mode=TwoWay}" />
+                    <Button Content="导出 Excel 报表" Click="OnExportApplicationsClick" Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Left" />
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource SectionBorderStyle}">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="网页容器" Style="{StaticResource SubtitleTextBlockStyle}" />
+                    <TextBlock Text="Boss 直聘登录状态默认保存在本机。清理独立 Profile 会移除登录态和缓存，不会删除求职者简历或岗位记录。" TextWrapping="Wrap" Foreground="{ThemeResource AppMutedTextBrush}" />
+                    <Button Content="清理 WebView2 Profile" Click="OnClearWebViewProfileClick" Style="{StaticResource QuietButtonStyle}" HorizontalAlignment="Left" />
+                </StackPanel>
+            </Border>
+
+            <Border Background="{ThemeResource AppSurfaceInsetBrush}" BorderBrush="{ThemeResource AppBorderBrush}" BorderThickness="1" CornerRadius="4" Padding="12">
+                <TextBlock Text="隐私说明：BossFind 不读取密码、Cookie 或验证码；投递和复核由你在平台页面手动完成。" TextWrapping="Wrap" Foreground="{ThemeResource AppMutedTextBrush}" />
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
 </Page>

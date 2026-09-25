@@ -20,7 +20,7 @@ public sealed class LocalJobInsightService : IJobInsightService
         if (string.IsNullOrWhiteSpace(posting.Experience)) suggestions.Add("建议确认岗位经验要求及实际负责范围。");
         if (string.IsNullOrWhiteSpace(posting.Education)) suggestions.Add("建议确认学历要求是否为硬性条件。");
         if (string.IsNullOrWhiteSpace(posting.Description)) suggestions.Add("岗位职责尚未提取，建议在平台页面核对具体工作内容。");
-        if (suggestions.Count == 0) suggestions.Add("关键信息已填写，可继续核对岗位职责和候选人匹配结果。");
+        if (suggestions.Count == 0) suggestions.Add("关键信息已填写，可继续核对岗位职责和简历匹配结果。");
 
         var details = new[] { posting.Title, posting.Company, posting.City }
             .Where(static value => !string.IsNullOrWhiteSpace(value));

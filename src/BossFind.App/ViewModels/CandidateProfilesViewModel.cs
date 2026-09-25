@@ -6,7 +6,9 @@ using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace BossFind.App.ViewModels;
 
-public sealed partial class CandidateProfilesViewModel(CandidateProfileService profileService)
+public sealed partial class CandidateProfilesViewModel(
+    CandidateProfileService profileService,
+    ResumeDocumentImportService? resumeImportService = null)
     : ObservableObject
 {
     private CandidateProfile? editingProfile;
@@ -84,22 +86,49 @@ public sealed partial class CandidateProfilesViewModel(CandidateProfileService p
     public partial bool IsBusy { get; set; }
 
     [ObservableProperty]
-    public partial string StatusMessage { get; set; } = "正在加载候选人档案。";
+    public partial bool IsLoading { get; set; }
+
+    [ObservableProperty]
+    public partial string StatusMessage { get; set; } = "正在加载求职者简历。";
 
     public async Task LoadAsync(CancellationToken cancellationToken = default)
     {
+        IsLoading = true;
+        try
+        {
+            await RunBusyAsync(async () =>
+            {
+                var profiles = await profileService.ListAsync(cancellationToken: cancellationToken);
+                ReplaceProfiles(profiles);
+                if (Profiles.Count == 0)
+                {
+                    BeginNew();
+                    StatusMessage = "还没有求职者简历。";
+                    return;
+                }
+
+                await LoadProfileAsync(Profiles[0], cancellationToken);
+            }, cancellationToken);
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    public async Task ImportDocumentAsync(string filePath, CancellationToken cancellationToken = default)
+    {
+        if (resumeImportService is null)
+        {
+            StatusMessage = "简历导入服务尚未配置。";
+            return;
+        }
+
         await RunBusyAsync(async () =>
         {
-            var profiles = await profileService.ListAsync(cancellationToken: cancellationToken);
-            ReplaceProfiles(profiles);
-            if (Profiles.Count == 0)
-            {
-                BeginNew();
-                StatusMessage = "还没有候选人档案。";
-                return;
-            }
-
-            await LoadProfileAsync(Profiles[0], cancellationToken);
+            var profile = await resumeImportService.ImportAsync(filePath, cancellationToken);
+            await ReloadProfilesAsync(profile.Id, cancellationToken);
+            StatusMessage = $"已导入简历并建立档案：{profile.Name}";
         }, cancellationToken);
     }
 
@@ -131,8 +160,8 @@ public sealed partial class CandidateProfilesViewModel(CandidateProfileService p
             ReplaceProfiles(profiles);
             SelectSearchResultWithoutResettingDraft();
             StatusMessage = Profiles.Count == 0
-                ? "没有找到匹配的候选人档案。"
-                : $"已找到 {Profiles.Count} 个候选人档案。";
+                ? "没有找到匹配的求职者简历。"
+                : $"已找到 {Profiles.Count} 份求职者简历。";
         }
         catch (OperationCanceledException) when (currentSearch.IsCancellationRequested)
         {
@@ -191,7 +220,7 @@ public sealed partial class CandidateProfilesViewModel(CandidateProfileService p
         Phone = string.Empty;
         Facts.Clear();
         ResetFactDraft();
-        StatusMessage = "新建候选人档案。";
+        StatusMessage = "新建求职者简历。";
     }
 
     public async Task SaveAsync(CancellationToken cancellationToken = default)
@@ -207,7 +236,7 @@ public sealed partial class CandidateProfilesViewModel(CandidateProfileService p
                     Email,
                     Phone,
                     cancellationToken);
-                StatusMessage = "候选人档案已创建。";
+                StatusMessage = "求职者简历已创建。";
             }
             else
             {
@@ -217,7 +246,7 @@ public sealed partial class CandidateProfilesViewModel(CandidateProfileService p
                 editingProfile.Email = Email;
                 editingProfile.Phone = Phone;
                 await profileService.UpdateAsync(editingProfile, cancellationToken);
-                StatusMessage = "候选人档案已保存。";
+                StatusMessage = "求职者简历已保存。";
             }
 
             await ReloadProfilesAsync(editingProfile.Id, cancellationToken);
@@ -234,7 +263,7 @@ public sealed partial class CandidateProfilesViewModel(CandidateProfileService p
         await RunBusyAsync(async () =>
         {
             await profileService.DeleteAsync(editingProfile.Id, cancellationToken);
-            StatusMessage = "候选人档案已删除。";
+            StatusMessage = "求职者简历已删除。";
             await ReloadProfilesAsync(null, cancellationToken);
         }, cancellationToken);
     }
@@ -261,7 +290,7 @@ public sealed partial class CandidateProfilesViewModel(CandidateProfileService p
     {
         if (editingProfile is null)
         {
-            StatusMessage = "请先保存候选人档案，再添加事实。";
+            StatusMessage = "请先保存求职者简历，再添加内容。";
             return;
         }
 
@@ -278,7 +307,7 @@ public sealed partial class CandidateProfilesViewModel(CandidateProfileService p
                     FactIsConfirmed,
                     cancellationToken);
                 Facts.Add(fact);
-                StatusMessage = "候选人事实已添加。";
+                StatusMessage = "简历信息已添加。";
             }
             else
             {
@@ -295,7 +324,7 @@ public sealed partial class CandidateProfilesViewModel(CandidateProfileService p
                     Facts.Insert(factIndex, editingFact);
                 }
 
-                StatusMessage = "候选人事实已保存。";
+                StatusMessage = "简历信息已保存。";
             }
 
             ResetFactDraft();
@@ -325,7 +354,7 @@ public sealed partial class CandidateProfilesViewModel(CandidateProfileService p
                 ResetFactDraft();
             }
 
-            StatusMessage = "候选人事实已删除。";
+            StatusMessage = "简历信息已删除。";
         }, cancellationToken);
     }
 

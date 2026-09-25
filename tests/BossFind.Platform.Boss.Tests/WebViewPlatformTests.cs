@@ -128,4 +128,51 @@ public sealed class WebViewPlatformTests
         Assert.Equal(string.Empty, summary.City);
         Assert.Empty(summary.Tags);
     }
+
+    [Fact]
+    public void Job_search_result_parser_reads_cards_and_deduplicates_external_ids()
+    {
+        const string html = """
+            <html><body>
+              <div class="job-card-wrapper" data-jobid="job-1">
+                <a href="/job_detail/job-1.html"><span class="job-name">后端开发工程师</span></a>
+                <div class="company-name">示例科技</div>
+                <span class="job-area">上海·浦东新区</span>
+                <span class="job-salary">20-35K·13薪</span>
+                <span class="job-limit">3-5年 本科</span>
+                <ul class="job-tags"><li>C#</li><li>.NET</li></ul>
+              </div>
+              <div class="job-card-wrapper" data-jobid="job-1">
+                <a href="/job_detail/job-1.html"><span class="job-name">重复岗位</span></a>
+              </div>
+              <div class="job-card-wrapper">
+                <a href="/job_detail/job-2.html"><span class="job-name">数据分析师</span></a>
+                <div class="company-name">另一家公司</div>
+                <span class="job-area">杭州</span>
+              </div>
+            </body></html>
+            """;
+
+        var results = BossJobSearchResultParser.Parse(html, "https://www.zhipin.com/job/list.html?page=1");
+
+        Assert.Equal(2, results.Count);
+        Assert.Equal("后端开发工程师", results[0].Title);
+        Assert.Equal("上海", results[0].City);
+        Assert.Equal("本科", results[0].Education);
+        Assert.Equal("3-5年", results[0].Experience);
+        Assert.Equal(["C#", ".NET"], results[0].Tags);
+        Assert.Equal("job-1", results[0].ExternalId);
+        Assert.Equal("https://www.zhipin.com/job_detail/job-1.html", results[0].Url);
+        Assert.Equal("job-2", results[1].ExternalId);
+    }
+
+    [Fact]
+    public void Job_search_result_parser_ignores_cards_without_job_links()
+    {
+        const string html = "<div class='job-card-wrapper'><span class='job-name'>推荐内容</span></div>";
+
+        var results = BossJobSearchResultParser.Parse(html);
+
+        Assert.Empty(results);
+    }
 }

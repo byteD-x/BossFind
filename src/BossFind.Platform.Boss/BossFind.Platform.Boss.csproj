@@ -10,4 +10,16 @@
     <PackageReference Include="Microsoft.Playwright" />
     <PackageReference Include="Microsoft.WindowsAppSDK" />
   </ItemGroup>
+
+  <Target Name="ExcludePlaywrightRuntimeFromPri"
+          BeforeTargets="_GenerateProjectPriConfigurationFiles"
+          DependsOnTargets="GetMrtPackagingOutputs">
+    <!-- Playwright runtime files are payloads, not WinUI resources. Their hashed file names contain '-' and
+         are otherwise interpreted as invalid PRI qualifiers (PRI249). -->
+    <ItemGroup>
+      <_AppxLayoutAssetPackageFiles Include="@(PackagingOutputs)"
+                                    Condition="$([System.String]::Copy('%(PackagingOutputs.TargetPath)').StartsWith('$(TargetName)\.playwright\', StringComparison.OrdinalIgnoreCase))" />
+    </ItemGroup>
+  </Target>
+
 </Project>
